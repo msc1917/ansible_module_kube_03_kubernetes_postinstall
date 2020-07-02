@@ -1,0 +1,61 @@
+---
+- name: "Check if Helm is installed"
+  shell: command -v helm >/dev/null 2>&1
+  register: helm_exists
+  ignore_errors: yes
+  changed_when: False
+  become: yes
+
+- name: Copy binary x64 to host
+  copy:
+      src: "{{ inventory_dir }}/dynamic_vars/files/download/helm/{{ helm.version }}/helm_linux-amd64"
+      dest: "/usr/local/bin/helm"
+      owner: root
+      group: root
+      mode: '0755'
+  become: yes
+  when:
+    - k8s_node is defined
+    - k8s_node in [ "install_master", "become_master", "node" ]
+    - ansible_facts.architecture == "x86_64"
+    - helm_exists.rc > 0
+
+- name: Copy binary arm64 to host
+  copy:
+      src: "{{ inventory_dir }}/dynamic_vars/files/download/helm/{{ helm.version }}/helm_linux-arm64"
+      dest: "/usr/local/bin/helm"
+      owner: root
+      group: root
+      mode: '0755'
+  become: yes
+  when:
+    - k8s_node is defined
+    - k8s_node in [ "install_master", "become_master", "node" ]
+    - ansible_facts.architecture == "aarch64"
+    - helm_exists.rc > 0
+    # - ansible_facts.userspace_bits == "64"
+
+- name: Copy binary armhf to host
+  copy:
+      src: "{{ inventory_dir }}/dynamic_vars/files/download/helm/{{ helm.version }}/helm_linux-arm"
+      dest: "/usr/local/bin/helm"
+      owner: root
+      group: root
+      mode: '0755'
+  become: yes
+  when:
+    - k8s_node is defined
+    - k8s_node in [ "install_master", "become_master", "node" ]
+    - ansible_facts.architecture is search("arm")
+    - ansible_facts.userspace_bits == "32"
+    - helm_exists.rc > 0
+
+- name: Get helm-Repositories
+  shell: helm repo add {{ item["repo"] }} {{ item["link"] }}
+  # become_user: "{{ kubeadm.os_user.user }}"
+  become: yes
+  with_items:
+    - "{{ helm_repositories }}"
+  when:
+    - kubernetes_engine == "kubeadm"
+    - k8s_node == "master"

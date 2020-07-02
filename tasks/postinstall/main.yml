@@ -1,0 +1,37 @@
+---
+- name: Install helm
+  include_tasks: postinstall/install_helm.yml
+  when:
+    - k8s_node is defined
+    - k8s_node in [ "install_master", "become_master", "node" ]
+
+# - name: Install minikube-engine
+#   include_tasks: postinstall/engine_minikube/main.yml
+#   when:
+#     - k8s_node is defined
+#     - k8s_node == "master"
+#     - kubernetes_engine == "minikube"
+
+- name: Install additions to vanilla kubernetes
+  include_tasks: postinstall/engine_kubeadm/main.yml
+  when:
+    - k8s_node is defined
+    - k8s_node == "install_master"
+    - kubernetes_engine == "kubeadm"
+
+# - name: Install rke-engine
+#   include_tasks: postinstall/engine_rke/main.yml
+#   when:
+#     - k8s_node is defined
+#     - k8s_node == "master"
+#     - kubernetes_engine == "rke"
+
+# - name: Install k3s-engine
+#   include_tasks: postinstall/engine_k3s/main.yml
+#   when:
+#     - k8s_node is defined
+#     - k8s_node == "master"
+#     - kubernetes_engine == "k3s"
+
+- name: Setup bash-completion
+  include_tasks: postinstall/install_bash-completion.yml

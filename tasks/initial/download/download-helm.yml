@@ -1,0 +1,59 @@
+---
+- name: Check if helm_linux-amd64 exitst
+  local_action: stat path="{{ inventory_dir }}/dynamic_vars/files/download/helm/{{ helm.version }}/helm_linux-amd64"
+  run_once: true
+  become: no
+  register: file_amd64
+
+- name: Check if helm_linux-arm64 exitst
+  local_action: stat path="{{ inventory_dir }}/dynamic_vars/files/download/helm/{{ helm.version }}/helm_linux-arm64"
+  run_once: true
+  become: no
+  register: file_arm64
+
+- name: Check if helm_linux-arm exitst
+  local_action: stat path="{{ inventory_dir }}/dynamic_vars/files/download/helm/{{ helm.version }}/helm_linux-arm"
+  run_once: true
+  become: no
+  register: file_arm
+
+- name: Downloading newest helm binaries locally
+  local_action: unarchive src="{{ item }}" dest="{{ inventory_dir }}/dynamic_vars/files/download/helm/{{ helm.version }}" remote_src=yes
+  run_once: true
+  become: no
+  with_items: 
+    - https://get.helm.sh/helm-{{ helm.version }}-linux-amd64.tar.gz
+    - https://get.helm.sh/helm-{{ helm.version }}-linux-arm.tar.gz
+    - https://get.helm.sh/helm-{{ helm.version }}-linux-arm64.tar.gz
+  when:
+    - (not file_amd64.stat.exists) or (not file_arm64.stat.exists) or (not file_arm.stat.exists)
+
+- name: Copying newest helm amd64-binary locally
+  local_action: command cp "{{ inventory_dir }}/dynamic_vars/files/download/helm/{{ helm.version }}/linux-amd64/helm" "{{ inventory_dir }}/dynamic_vars/files/download/helm/{{ helm.version }}/helm_linux-amd64"
+  run_once: true
+  become: no
+  when:
+    - not file_amd64.stat.exists
+
+- name: Copying newest helm arm64-binary locally
+  local_action: command cp "{{ inventory_dir }}/dynamic_vars/files/download/helm/{{ helm.version }}/linux-arm64/helm" "{{ inventory_dir }}/dynamic_vars/files/download/helm/{{ helm.version }}/helm_linux-arm64"
+  run_once: true
+  become: no
+  when:
+    - not file_arm64.stat.exists
+
+- name: Copying newest helm arm-binary locally
+  local_action: command cp "{{ inventory_dir }}/dynamic_vars/files/download/helm/{{ helm.version }}/linux-arm/helm" "{{ inventory_dir }}/dynamic_vars/files/download/helm/{{ helm.version }}/helm_linux-arm"
+  run_once: true
+  become: no
+  when:
+    - not file_arm.stat.exists
+
+- name: Deleting temporary files
+  local_action: file path="{{ item }}" state=absent 
+  run_once: true
+  become: no
+  with_items: 
+    - "{{ inventory_dir }}/dynamic_vars/files/download/helm/{{ helm.version }}/linux-amd64"
+    - "{{ inventory_dir }}/dynamic_vars/files/download/helm/{{ helm.version }}/linux-arm64"
+    - "{{ inventory_dir }}/dynamic_vars/files/download/helm/{{ helm.version }}/linux-arm"

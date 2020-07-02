@@ -1,0 +1,12 @@
+---
+- name: Setup Kubernetes Hosts
+  include_tasks: initial/main.yml
+  when:
+    - k8s_node is defined
+    - k8s_node in [ "install_master", "become_master", "node" ]
+
+- name: Install additional tools
+  include_tasks: postinstall/main.yml
+  when:
+    - k8s_node is defined
+    - k8s_node in [ "install_master", "become_master", "node" ]

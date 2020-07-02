@@ -1,0 +1,12 @@
+---
+- name: Create Directory-Structure
+  local_action: file path="{{ item }}" state=directory mode='0775'
+  run_once: true
+  become: no
+  with_items: 
+    - "{{ inventory_dir }}/dynamic_vars/files/download"
+    - "{{ inventory_dir }}/dynamic_vars/files/download/helm"
+    - "{{ inventory_dir }}/dynamic_vars/files/download/helm/{{ helm.version }}"
+
+- name: Download helm-binaries
+  include_tasks: initial/download/download-helm.yml

@@ -1,0 +1,9 @@
+---
+- name: Setup RBAC
+  include_tasks: postinstall/engine_kubeadm/install_rbac.yml
+
+- name: Setup weave
+  include_tasks: postinstall/engine_kubeadm/install_weave.yml
+
+- name: Setup tiller
+  include_tasks: postinstall/engine_kubeadm/install_tiller.yml

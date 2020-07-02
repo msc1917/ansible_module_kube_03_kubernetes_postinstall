@@ -1,0 +1,12 @@
+---
+- name: Download binaries
+  include_tasks: initial/initial-download.yml
+  when:
+    - k8s_node is defined
+    - k8s_node == "install_master"
+    
+- name: Base-Setup for host
+  include_tasks: initial/initial-host.yml
+  when:
+    - k8s_node is defined
+    - k8s_node in [ "install_master", "become_master", "node" ]

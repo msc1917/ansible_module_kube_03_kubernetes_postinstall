@@ -1,0 +1,12 @@
+---
+- name: "Copy yaml file"
+  copy:
+    src: "engine_kubeadm/rbac-config.yml"
+    dest: "/home/{{ kubeadm.os_user.user }}/rbac-config.yml"
+    mode: 0644
+  ignore_errors: yes
+  become: yes
+- name: "Apply RBAC"
+  shell: "export KUBECONFIG=/home/{{ kubeadm.os_user.user }}/.kube/admin.conf; kubectl apply -f /home/{{ kubeadm.os_user.user }}/rbac-config.yml"
+  ignore_errors: yes
+  become: yes
