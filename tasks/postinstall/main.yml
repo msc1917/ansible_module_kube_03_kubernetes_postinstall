@@ -33,5 +33,5 @@
 #     - k8s_node == "master"
 #     - kubernetes_engine == "k3s"
 
-- name: Setup bash-completion
-  include_tasks: postinstall/install_bash-completion.yml
+# - name: Setup bash-completion
+#   include_tasks: postinstall/install_bash-completion.yml
